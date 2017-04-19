@@ -1,11 +1,19 @@
 var request = require('request');
+var fs = require('fs');
 
 var GITHUB_USER = "shinmike";
 var GITHUB_TOKEN = "29e352f40b5364b8f86cc54a776ea09d349da289";
 
 console.log('Welcome to the GitHub Avatar Downloader!');
 
+var repoOwner = process.argv[2];
+var repoName = process.argv[3];
+
 function getRepoContributors(repoOwner, repoName, cb) {
+
+  if (!repoOwner || !repoName) {
+    console.error('Please return correct name and repo');
+  }
 
   var requestURL = 'https://'+ GITHUB_USER + ':' + GITHUB_TOKEN + '@api.github.com/repos/' + repoOwner + '/' + repoName + '/contributors';
 
@@ -19,23 +27,43 @@ function getRepoContributors(repoOwner, repoName, cb) {
   function callback(error, response, body) {
     if (!error && response.statusCode == 200) {
       var info = JSON.parse(body);
-      var result = info.map(function(value){
-        console.log('avatar_url:', value.avatar_url);
-      });
-      console.log('statusCode:', response.statusCode);
+      // var arr = [];
+      // info.forEach(function(value){
+      //   arr.push(value.avatar_url);
+      // });
+      cb(null, info);
     }
   }
 
-  // Step 5 - not clear why it is called like this?...
+  // Step 5 - not clear how this is called?...
   request(options, callback);
 
 }
 
-getRepoContributors("jquery", "jquery", function(err, result) {
-  console.log("Errors:", err);
-  console.log("Result:", result);
+getRepoContributors(repoOwner, repoName, function(err, result) {
+  if (!err){
+    for (var i = 0; i < result.length; i++){
+      var origFileName = result[i].login;
+      var newFileName = "avatars/" + origFileName + ".jpg";
+      downloadImageByURL(result[i].avatar_url, newFileName);
+    }
+  }
 });
 
+function downloadImageByURL(url, filePath) {
+  console.log("Downloading image...");
+  var stream = request.get(url)
+  .on('error', function (err) {
+    throw err;
+  })
+  .on('response', function (response) {
+    console.log('Downloading image status: ', response.statusCode);
+  })
+  .pipe(fs.createWriteStream(filePath));
+  stream.on('finish', function(){
+     console.log("Downloading image complete.");
+  });
+}
 
 
 
@@ -43,12 +71,7 @@ getRepoContributors("jquery", "jquery", function(err, result) {
 
 
 
-
-
-
-
-
-
+// ------------------------ ORIGINAL SOLUTION
 
 // var request = require('request');
 // var fs = require('fs');
