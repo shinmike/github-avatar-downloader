@@ -32,7 +32,7 @@ function getRepoContributors(repoOwner, repoName, cb) {
     }
   }
 
-  request(options, callback);
+  request.get(options, callback);
 
 }
 
@@ -53,6 +53,7 @@ function downloadImageByURL(url, filePath) {
       throw err;
     })
     .on('response', function (response) {
+      console.log("Actual image type!", response.caseless.dict['content-type']);
       console.log('Downloading image status: ', response.statusCode);
     })
     .pipe(fs.createWriteStream(filePath))
