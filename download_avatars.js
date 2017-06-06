@@ -2,12 +2,12 @@ var request = require('request');
 var fs = require('fs');
 
 var GITHUB_USER = "shinmike";
-var GITHUB_TOKEN = "29e352f40b5364b8f86cc54a776ea09d349da289";
-
-console.log('Welcome to the GitHub Avatar Downloader!');
+var GITHUB_TOKEN = "df908819cf05714f227837a5235b3384dfec39f6";
 
 var repoOwner = process.argv[2];
 var repoName = process.argv[3];
+
+console.log('Welcome to the GitHub Avatar Downloader!');
 
 function getRepoContributors(repoOwner, repoName, cb) {
 
@@ -20,22 +20,18 @@ function getRepoContributors(repoOwner, repoName, cb) {
   var options = {
     url: requestURL,
     headers: {
-      'User-Agent': 'request'
+      'User-Agent': 'blahblahblah'
     }
   };
 
   function callback(error, response, body) {
     if (!error && response.statusCode == 200) {
       var info = JSON.parse(body);
-      // var arr = [];
-      // info.forEach(function(value){
-      //   arr.push(value.avatar_url);
-      // });
-      cb(null, info);
+      console.log(info);
+      cb(error, info);
     }
   }
 
-  // Step 5 - not clear how this is called?...
   request(options, callback);
 
 }
@@ -52,18 +48,37 @@ getRepoContributors(repoOwner, repoName, function(err, result) {
 
 function downloadImageByURL(url, filePath) {
   console.log("Downloading image...");
-  var stream = request.get(url)
-  .on('error', function (err) {
-    throw err;
-  })
-  .on('response', function (response) {
-    console.log('Downloading image status: ', response.statusCode);
-  })
-  .pipe(fs.createWriteStream(filePath));
-  stream.on('finish', function(){
-     console.log("Downloading image complete.");
-  });
+  request.get(url)
+    .on('error', function (err) {
+      throw err;
+    })
+    .on('response', function (response) {
+      console.log('Downloading image status: ', response.statusCode);
+    })
+    .pipe(fs.createWriteStream(filePath))
+    .on('finish', function(){
+      console.log("Downloading image complete.");
+    });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
